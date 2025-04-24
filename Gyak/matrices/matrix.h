@@ -27,5 +27,7 @@ void transform_point(int a, int b, const float matrixIn[3][3]);//pont transzform
 void scale(float scaleNum, const float matrixIn[3][3], float matrixOut[3][3]);//mátrix skálázás
 
 void shift(float shiftX, float shiftY, const float matrixIn[3][3], float matrixOut[3][3]);//mátrix shift
+
+void rotate(float angleDegree, const float matrixIn[3][3], float matrixOut[3][3]);//mátrix forgatás
 #endif // MATRIX_H
 

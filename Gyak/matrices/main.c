@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <stdio.h>
+#include <math.h>
 
 int main(int argc, char* argv[])
 {
@@ -46,7 +47,7 @@ int main(int argc, char* argv[])
 
     print_matrix(a);
     printf("\n");
-    shift(2,2, a, c);
+    rotate(180, a, c);
 
     print_matrix(c);
     printf("\n");

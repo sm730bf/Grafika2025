@@ -1,6 +1,8 @@
 #include "matrix.h"
-
+#include <math.h>
 #include <stdio.h>
+
+#define M_PI 3.14159265358979323846
 
 void init_zero_matrix(float matrix[3][3])
 {
@@ -106,4 +108,14 @@ void shift(float shiftX, float shiftY, const float matrixIn[3][3], float matrixO
     {0,      0,     1}
 };
     multiply_matrices(shiftMatrix, matrixIn, matrixOut);
+}
+
+void rotate(float angleDegree, const float matrixIn[3][3], float matrixOut[3][3]){
+    double rad =((angleDegree) * M_PI / 180.0) ;
+    float rotateMatrix[3][3] = {
+    {cos(rad),   -sin(rad),     0},
+    {sin(rad),   cos(rad),      0},
+    {0,               0,        1}
+};
+    multiply_matrices(rotateMatrix, matrixIn, matrixOut);
 }
