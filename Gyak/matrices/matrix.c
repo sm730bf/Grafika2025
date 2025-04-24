@@ -98,3 +98,12 @@ void scale(float scaleNum, const float matrixIn[3][3], float matrixOut[3][3]){
 };
     multiply_matrices(scaleMatrix, matrixIn, matrixOut);
 }
+
+void shift(float shiftX, float shiftY, const float matrixIn[3][3], float matrixOut[3][3]){
+    float shiftMatrix[3][3] = {
+    {1,   0,     shiftX},
+    {0,   1,     shiftY},
+    {0,      0,     1}
+};
+    multiply_matrices(shiftMatrix, matrixIn, matrixOut);
+}

@@ -25,5 +25,7 @@ void multiply_matrices(const float a[3][3], const float b[3][3], float c[3][3]);
 void transform_point(int a, int b, const float matrixIn[3][3]);//pont transzformáció
 
 void scale(float scaleNum, const float matrixIn[3][3], float matrixOut[3][3]);//mátrix skálázás
+
+void shift(float shiftX, float shiftY, const float matrixIn[3][3], float matrixOut[3][3]);//mátrix shift
 #endif // MATRIX_H
 

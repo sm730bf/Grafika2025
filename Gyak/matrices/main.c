@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
     print_matrix(a);
     printf("\n");
-    scale(2, a, c);
+    shift(2,2, a, c);
 
     print_matrix(c);
     printf("\n");
