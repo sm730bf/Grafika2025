@@ -104,18 +104,114 @@ void reshape(GLsizei width, GLsizei height)
     );
 }
 
+BoundingBox calculate_bounding_box(Object* tank)
+{
+    BoundingBox box;
+    float half_width = tank->scale.x * 1.0f; // Half the width of the tank
+    float half_height = tank->scale.y * 1.0f; // Half the height of the tank
+
+    box.min.x = tank->pos.x - half_width;
+    box.min.y = tank->pos.y - half_height;
+    box.min.z = tank->pos.z - half_height;
+
+    box.max.x = tank->pos.x + half_width;
+    box.max.y = tank->pos.y + half_height;
+    box.max.z = tank->pos.z + half_height;
+
+    return box;
+}
+
+int check_collision(BoundingBox* box1, BoundingBox* box2)
+{
+    return (box1->min.x < box2->max.x && box1->max.x > box2->min.x &&
+            box1->min.y < box2->max.y && box1->max.y > box2->min.y &&
+            box1->min.z < box2->max.z && box1->max.z > box2->min.z);
+}
+
+BoundingBox calculate_wall_bounding_box(Object* wall)
+{
+    BoundingBox box;
+    float half_width = wall->scale.x * 0.5f;
+    float half_height = wall->scale.y * 0.5f;
+
+    box.min.x = wall->pos.x - half_width;
+    box.min.y = wall->pos.y - half_height;
+    box.min.z = wall->pos.z - 0.5f; // Adjust depth as needed
+
+    box.max.x = wall->pos.x + half_width;
+    box.max.y = wall->pos.y + half_height;
+    box.max.z = wall->pos.z + 0.5f;
+
+    return box;
+}
+
+BoundingBox calculate_cube_bounding_box(Object* cube)
+{
+    BoundingBox box;
+    float half_width = cube->scale.x * 0.5f;
+    float half_height = cube->scale.y * 0.5f;
+
+    box.min.x = cube->pos.x - half_width;
+    box.min.y = cube->pos.y - half_height;
+    box.min.z = cube->pos.z - 0.5f;
+
+    box.max.x = cube->pos.x + half_width;
+    box.max.y = cube->pos.y + half_height;
+    box.max.z = cube->pos.z + 0.5f;
+
+    return box;
+}
+
 void tank_movement(Scene* scene)
 {
-    if(tank_forward){
-        scene->tank.pos.y -= scene->tank_speed * sin(scene->tank.rot.z); // Use sin for X-axis
-        scene->tank.pos.x -= scene->tank_speed * cos(scene->tank.rot.z); // Use cos for Z-axis
-    } if(tank_backward){
-        scene->tank.pos.y += scene->tank_speed * sin(scene->tank.rot.z); // Use sin for X-axis
-        scene->tank.pos.x += scene->tank_speed * cos(scene->tank.rot.z); // Use cos for Z-axis
-    } if(tank_left_turn){
-        scene->tank.rot.z += 1.0f * (M_PI / 180.0f); // Convert degrees to radians
-    } if(tank_right_turn){
-        scene->tank.rot.z -= 1.0f * (M_PI / 180.0f); // Convert degrees to radians
+    //BoundingBox tank1_box = calculate_bounding_box(&(scene->tank));
+    BoundingBox tank2_box = calculate_bounding_box(&(scene->tank2));
+
+    // Save the original position in case of collision
+    vec3 original_pos = scene->tank.pos;
+
+    // Move the tank based on input
+    if (tank_forward) {
+        scene->tank.pos.x -= scene->tank_speed * cos(scene->tank.rot.z);
+        scene->tank.pos.y -= scene->tank_speed * sin(scene->tank.rot.z);
+    }
+    if (tank_backward) {
+        scene->tank.pos.x += scene->tank_speed * cos(scene->tank.rot.z);
+        scene->tank.pos.y += scene->tank_speed * sin(scene->tank.rot.z);
+    }
+    if (tank_left_turn) {
+        scene->tank.rot.z += 1.0f * (M_PI / 180.0f); // Rotate counterclockwise
+    }
+    if (tank_right_turn) {
+        scene->tank.rot.z -= 1.0f * (M_PI / 180.0f); // Rotate clockwise
+    }
+
+    // Recalculate the bounding box after movement
+    BoundingBox new_tank1_box = calculate_bounding_box(&(scene->tank));
+
+    // Check collision with tank2
+    if (check_collision(&new_tank1_box, &tank2_box)) {
+        printf("Collision detected with tank2!\n");
+        scene->tank.pos = original_pos; // Revert to the original position
+    }
+    // Check collision with cubes
+    for (int i = 0; i < NUM_CUBES; i++) {
+    BoundingBox cube_box = calculate_cube_bounding_box(&(scene->cubes[i]));
+    if (check_collision(&new_tank1_box, &cube_box)) {
+        printf("Collision detected with cube %d!\n", i);
+        scene->tank.pos = original_pos; // Revert to the original position
+        break;
+    }
+}
+
+    // Check collision with walls
+    for (int i = 0; i < 4; i++) {
+        BoundingBox wall_box = calculate_wall_bounding_box(&(scene->walls[i]));
+        if (check_collision(&new_tank1_box, &wall_box)) {
+            printf("Collision detected with wall %d!\n", i);
+            scene->tank.pos = original_pos; // Revert to the original position
+            break;
+        }
     }
 }
 void fire_projectile(Scene* scene, Object* tank)
@@ -127,15 +223,16 @@ void fire_projectile(Scene* scene, Object* tank)
 
     for (int i = 0; i < 10; i++) {
         if (!scene->projectiles[i].active) {
-            printf("Firing projectile %d from tank at position: x=%.2f, y=%.2f, z=%.2f\n",
+           /* printf("Firing projectile %d from tank at position: x=%.2f, y=%.2f, z=%.2f\n",
                    i, tank->pos.x, tank->pos.y, tank->pos.z);
             printf("Tank rotation: z=%.2f radians\n", tank->rot.z);
-
+                */
             scene->projectiles[i].active = 1;
              // Set projectile position to tank position with a Z-axis offset
+             float spawn_offset = 1.0f;
              scene->projectiles[i].pos = (vec3){
-                tank->pos.x,
-                tank->pos.y,
+                tank->pos.x - cos(tank->rot.z) * spawn_offset,
+                tank->pos.y - sin(tank->rot.z) * spawn_offset,
                 tank->pos.z + 0.5f // Add 0.5f offset to Z-axis
             };
             scene->projectiles[i].dir = (vec3){
@@ -145,9 +242,9 @@ void fire_projectile(Scene* scene, Object* tank)
                    
             };
             scene->projectiles[i].speed = 0.2f;
-            printf("Projectile %d initialized: dir=(%.2f, %.2f, %.2f), speed=%.2f\n",
+            /*printf("Projectile %d initialized: dir=(%.2f, %.2f, %.2f), speed=%.2f\n",
                    i, scene->projectiles[i].dir.x, scene->projectiles[i].dir.y, scene->projectiles[i].dir.z,
-                   scene->projectiles[i].speed);
+                   scene->projectiles[i].speed);*/
             break;
         }
     }
@@ -265,7 +362,7 @@ void move_camera(App* app){
     float side = 0.0f;
 
     // Debugging: Print mouse and window dimensions
-    printf("Mouse: (%d, %d), Window: (%d, %d)\n", x, y, window_width, window_height);
+    //printf("Mouse: (%d, %d), Window: (%d, %d)\n", x, y, window_width, window_height);
 
     if (x <= EDGE_THRESHOLD) {
         side = CAMERA_MOVE_SPEED; // Move left
@@ -330,30 +427,48 @@ void destroy_app(App* app)
 
 void check_collisions(Scene* scene)
 {
+    BoundingBox tank1_box = calculate_bounding_box(&(scene->tank));
+    BoundingBox tank2_box = calculate_bounding_box(&(scene->tank2));
+
     for (int i = 0; i < 10; i++) {
         if (scene->projectiles[i].active) {
-            printf("Checking collision for projectile %d: pos=(%.2f, %.2f, %.2f)\n",
-                   i, scene->projectiles[i].pos.x, scene->projectiles[i].pos.y, scene->projectiles[i].pos.z);
+            //printf("Checking collision for projectile %d: pos=(%.2f, %.2f, %.2f)\n",
+                   //i, scene->projectiles[i].pos.x, scene->projectiles[i].pos.y, scene->projectiles[i].pos.z);
+
+            // Create a bounding box for the projectile
+            float projectile_size = 1.0f; // Adjust this value as needed
+            BoundingBox projectile_box = {
+                .min = {
+                    scene->projectiles[i].pos.x - projectile_size,
+                    scene->projectiles[i].pos.z - projectile_size,
+                    scene->projectiles[i].pos.y - projectile_size
+                },
+                .max = {
+                    scene->projectiles[i].pos.x + projectile_size,
+                    scene->projectiles[i].pos.z + projectile_size,
+                    scene->projectiles[i].pos.y + projectile_size
+                }
+            };
 
             // Check collision with tank2
-            if (fabs(scene->projectiles[i].pos.x - scene->tank2.pos.x) < 0.5f &&
-                fabs(scene->projectiles[i].pos.y - scene->tank2.pos.y) < 0.5f) {
+            if (check_collision(&projectile_box, &tank2_box)) {
                 printf("Projectile %d hit tank2!\n", i);
-                scene->projectiles[i].active = 0;
-                scene->tank2_hp--;
+                scene->projectiles[i].active = 0; // Deactivate the projectile
+                scene->tank2_hp--; // Decrease tank2's health
+                printf("Tank2 HP: %d\n", scene->tank2_hp);
                 if (scene->tank2_hp <= 0) {
                     printf("Tank2 destroyed!\n");
                 }
             }
 
-            // Check collision with tank
-            if (fabs(scene->projectiles[i].pos.x - scene->tank.pos.x) < 0.5f &&
-                fabs(scene->projectiles[i].pos.y - scene->tank.pos.y) < 0.5f) {
-                printf("Projectile %d hit tank!\n", i);
-                scene->projectiles[i].active = 0;
-                scene->tank_hp--;
+            // Check collision with tank1
+            if (check_collision(&projectile_box, &tank1_box)) {
+                printf("Projectile %d hit tank1!\n", i);
+                scene->projectiles[i].active = 0; // Deactivate the projectile
+                scene->tank_hp--; // Decrease tank1's health
+                printf("Tank1 HP: %d\n", scene->tank_hp);
                 if (scene->tank_hp <= 0) {
-                    printf("Tank destroyed!\n");
+                    printf("Tank1 destroyed!\n");
                 }
             }
         }

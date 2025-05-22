@@ -62,4 +62,8 @@ void tank_movement(Scene* scene);
 
 void check_collisions(Scene* scene);
 
+//void update_tank2(Scene* scene);
+
+//int check_collision(const Scene* scene, const Object* tank);
+
 #endif /* APP_H */

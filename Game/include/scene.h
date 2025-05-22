@@ -6,6 +6,9 @@
 #include "object.h"
 #include <obj/model.h>
 
+
+#define NUM_CUBES 20
+
 typedef struct Scene
 {
     //Model cube;
@@ -13,11 +16,16 @@ typedef struct Scene
     Object tank2;
     Object projectile_model;
     Projectile projectiles[10];
+    Object cubes[NUM_CUBES];
     int tank_hp;
     int tank2_hp;
     Object ground;
     Material material;
+    Object walls[4]; // Array for the 4 walls
     GLuint texture_id;
+    
+    
+    vec3 light_position; // Light source position
     float tank_speed;      // Speed of the tank
     float tank_rotation;   // Rotation angle of the tank
 } Scene;
@@ -63,4 +71,9 @@ void keeper_movement(Object* keeper);
 void render_menu_texture(GLuint texture);
 
 void draw_score(const Scene* scene);
+
+void set_light_plus();
+void set_light_minus();
+
+void render_shadow_volume(const Object* object, vec3 light_position);
 #endif /* SCENE_H */

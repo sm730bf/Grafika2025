@@ -23,6 +23,11 @@ typedef struct Projectile {
     int active;     // Whether the projectile is active
 } Projectile;
 
+typedef struct BoundingBox {
+    vec3 min; // Minimum corner of the box (x, y, z)
+    vec3 max; // Maximum corner of the box (x, y, z)
+} BoundingBox;
+
 void init_Object(Object* Object, char* obj, char* texture);
 
 #endif /* TARGY_H */

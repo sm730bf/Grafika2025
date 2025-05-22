@@ -49,4 +49,6 @@ void set_camera_side_speed(Camera* camera, double speed);
 // zoom in and out
 void zoom_camera(Camera* camera, float zoom_amount);
 
+void show_texture_preview();
+
 #endif /* CAMERA_H */
