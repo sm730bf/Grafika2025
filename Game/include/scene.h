@@ -23,7 +23,9 @@ typedef struct Scene
     Material material;
     Object walls[4]; // Array for the 4 walls
     GLuint texture_id;
-    
+    bool is_menu_visible; // Whether the menu cube is currently visible
+    GLuint menu_texture;  // Texture for the menu
+    Object menu_cube;     // Cube object for the menu
     
     vec3 light_position; // Light source position
     float tank_speed;      // Speed of the tank

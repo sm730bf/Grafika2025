@@ -29,6 +29,17 @@ void init_scene(Scene* scene)
     
     scene->material.shininess = 0.0; 
 
+    // Load the menu texture
+    scene->menu_texture = load_texture("assets/textures/Menu.jpg");
+    scene->is_menu_visible = true; // Start with the menu hidden
+
+    // Initialize the menu cube
+    init_Object(&(scene->menu_cube), "assets/models/cube.obj", "assets/textures/Menu.jpg");
+    scene->menu_cube.pos = (vec3){3.0f, 0.0f, 5.0f}; // Position the cube slightly above the ground
+    scene->menu_cube.scale = (vec3){2.0f, 2.0f, 2.0f}; // Scale the cube to make it larger
+    scene->menu_cube.rot = (vec3){0.0f, 0.0f, 270.0f}; // No rotation
+    
+
     // Initialize the tank
     init_Object(&(scene->tank), "assets/models/14079_WWII_Tank_UK_Cromwell_v1_L2.obj", 
                 "assets/textures/14079_WWII_Tank_UK_Cromwell_hull_diff.jpg");
@@ -233,7 +244,28 @@ void update_scene(Scene* scene)
 }
 
 void render_scene(const Scene* scene)
-{
+{   GLint prev_tex_env_mode;
+    glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &prev_tex_env_mode);
+    if (scene->is_menu_visible) {
+        // Render the menu cube
+        glDisable(GL_LIGHTING);
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        glPushMatrix();
+        glTranslatef(scene->menu_cube.pos.x, scene->menu_cube.pos.y, scene->menu_cube.pos.z);
+        glRotatef(scene->menu_cube.rot.x, 1.0f, 0.0f, 0.0f); // Rotate around X-axis
+    glRotatef(scene->menu_cube.rot.y, 0.0f, 1.0f, 0.0f); // Rotate around Y-axis
+    glRotatef(scene->menu_cube.rot.z, 0.0f, 0.0f, 1.0f); // Rotate around Z-axis
+        glScalef(scene->menu_cube.scale.x, scene->menu_cube.scale.y, scene->menu_cube.scale.z);
+        glBindTexture(GL_TEXTURE_2D, scene->menu_texture);
+        draw_model(&(scene->menu_cube.model));
+        glPopMatrix();
+
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, prev_tex_env_mode);
+        glEnable(GL_LIGHTING);
+        return; // Skip rendering the rest of the scene
+    }
+
     set_material(&(scene->material));
     set_lighting((Scene*)scene);
     draw_origin();

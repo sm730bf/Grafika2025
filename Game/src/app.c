@@ -290,9 +290,9 @@ void handle_app_events(App* app, Scene* scene)
             case SDL_SCANCODE_KP_MINUS:
                 set_light_minus();
                 break;
-            /*case SDL_SCANCODE_F1:
-                scene->isShowingMenu = !scene->isShowingMenu;
-                break;*/
+            case SDL_SCANCODE_F1:
+                scene->is_menu_visible = !scene->is_menu_visible;
+                break;
             case SDL_SCANCODE_KP_4: // Move light left (decrease X)
                 scene->light_position.x -= 0.5f;
                 update_light(scene);
