@@ -103,24 +103,25 @@ void init_scene(Scene* scene)
     scene->walls[3].scale = (vec3){20.0f, 1.0f, 1.0f};
     scene->walls[3].rot = (vec3){0.0f, 0.0f, 0.0f};
 }
-void update_light() {
+void update_light(Scene* scene) {
     float ambient_light[] = { light * 0.2f, light * 0.2f, light * 0.2f, 1.0f };
     float diffuse_light[] = { light, light, light, 1.0f };
     float specular_light[] = { light, light, light, 1.0f };
-    float position[] = { 5.0f, 5.0f, 5.0f, 1.0f }; // Example light position
 
+    // Use the light position from the scene
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient_light);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
     glLightfv(GL_LIGHT0, GL_SPECULAR, specular_light);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
+    glLightfv(GL_LIGHT0, GL_POSITION, (float*)&scene->light_position);
 
-    printf("Light updated: intensity=%f\n", light);
+    printf("Light position updated: x=%.2f, y=%.2f, z=%.2f\n",
+           scene->light_position.x, scene->light_position.y, scene->light_position.z);
 }
 
-void set_lighting() {
+void set_lighting(Scene* scene) {
     glEnable(GL_LIGHT0); // Enable light 0
     glEnable(GL_LIGHTING); // Enable lighting
-    update_light(); // Initialize the light properties
+    update_light(scene); // Initialize the light properties
 }
 void compute_shadow_matrix(float shadow_mat[16], vec3 light_pos) {
     float a = 0, b = 0, c = 1, d = 0; // Plane: Z = 0 → ax + by + cz + d = 0
@@ -234,7 +235,7 @@ void update_scene(Scene* scene)
 void render_scene(const Scene* scene)
 {
     set_material(&(scene->material));
-    set_lighting();
+    set_lighting((Scene*)scene);
     draw_origin();
    // draw_model(&(scene->cube));
    render_shadows(scene);

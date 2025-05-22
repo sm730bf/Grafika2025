@@ -293,6 +293,30 @@ void handle_app_events(App* app, Scene* scene)
             /*case SDL_SCANCODE_F1:
                 scene->isShowingMenu = !scene->isShowingMenu;
                 break;*/
+            case SDL_SCANCODE_KP_4: // Move light left (decrease X)
+                scene->light_position.x -= 0.5f;
+                update_light(scene);
+                break;
+            case SDL_SCANCODE_KP_6: // Move light right (increase X)
+                scene->light_position.x += 0.5f;
+                update_light(scene);
+                break;
+            case SDL_SCANCODE_KP_8: // Move light forward (increase Y)
+                scene->light_position.y += 0.5f;
+                update_light(scene);
+                break;
+            case SDL_SCANCODE_KP_2: // Move light backward (decrease Y)
+                scene->light_position.y -= 0.5f;
+                update_light(scene);
+                break;
+            case SDL_SCANCODE_KP_1: // Move light down (decrease Z)
+                scene->light_position.z -= 0.5f;
+                update_light(scene);
+                break;
+            case SDL_SCANCODE_KP_0: // Move light up (increase Z)
+                scene->light_position.z += 0.5f;
+                update_light(scene);
+                break;
             default:
                 break;
             }
